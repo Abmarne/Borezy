@@ -1,0 +1,124 @@
+/* Leads.css */
+
+/* General styling for the container */
+.lead-container {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Navbar styling */
+.navbar {
+  display: flex;
+  align-items: center;
+  background: #fff; /* Background color white */
+  color: #333; /* Text color for contrast */
+  padding: 10px;
+  position: relative;
+  z-index: 1;
+  border-bottom: 1px solid #ddd; /* Add a bottom border for separation */
+}
+
+.navbar-logo {
+  margin-left: 20px; /* Shift the logo to the right */
+}
+
+.navbar-logo img {
+  height: 40px;
+}
+
+.navbar-toggle {
+  background: none;
+  border: none;
+  color: #333;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: 10px; /* Adjust spacing as needed */
+}
+
+.navbar-toggle-icon {
+  width: 30px;
+  height: 3px;
+  background-color: #333;
+  margin: 3px 0;
+}
+
+/* Add Lead button styling */
+.add-lead-container {
+  display: flex;
+  justify-content: flex-end; /* Align button to the right */
+  padding: 20px; /* Add some padding below the navbar */
+}
+
+.add-lead-button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease; /* Smooth transition on hover */
+}
+
+.add-lead-button:hover {
+  background: #0056b3; /* Darker shade on hover */
+}
+
+/* Sidebar styling */
+.sidebar {
+  background: #f4f4f4;
+  width: 250px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  padding: 20px;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  z-index: 0;
+  overflow-y: auto; /* Add scroll if content overflows */
+}
+
+.sidebar-header {
+  font-size: 18px;
+  margin-bottom: 20px;
+  font-weight: bold; /* Make header text bold */
+}
+
+/* Sidebar sections */
+.sidebar-section {
+  margin-bottom: 30px; /* Add space between sections */
+}
+
+.sidebar-title {
+  font-weight: bold;
+  margin-bottom: 20px; /* Move title down */
+  margin-top: 30px; /* Add space above the title */
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  margin: 5px 0;
+}
+
+.sidebar button {
+  background: none;
+  border: none;
+  color: #333;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  padding: 5px 0; /* Add padding for better click area */
+  transition: background 0.2s ease; /* Smooth transition on hover */
+}
+
+.sidebar button:hover {
+  background: #e9ecef; /* Light grey background on hover */
+}
