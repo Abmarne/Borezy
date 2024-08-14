@@ -103,6 +103,16 @@ const Login = () => {
         return;
       }
 
+      const branchQuery = query(collection(db, 'branches'), where('emailId', '==', email));
+      const branchSnapshot = await getDocs(branchQuery);
+
+      if (!branchSnapshot.empty) {
+        const branchData = branchSnapshot.docs[0].data();
+        setUserData({ name: branchData.name, role: 'Branch Manager', email });
+        navigate('/welcome');
+        return;
+      }
+
       const userQuery = query(collection(db, 'users'), where('email', '==', email));
       const userSnapshot = await getDocs(userQuery);
 

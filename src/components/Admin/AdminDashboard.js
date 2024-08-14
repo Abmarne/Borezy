@@ -7,6 +7,7 @@ import editIcon from '../../assets/Edit.png';
 import deleteIcon from '../../assets/Trash Can - Copy.png';
 import logo1 from '../../assets/screenshot-20240801-at-125204-pmremovebgpreview-1@2x.png';
 import profileIcon from '../../assets/Profile.png';
+
 const Header = () => {
   const navigate = useNavigate();
 
@@ -32,7 +33,11 @@ const AdminDashboard = () => {
     const fetchBranches = async () => {
       const branchesCollection = collection(db, 'branches');
       const branchSnapshot = await getDocs(branchesCollection);
-      const branchList = branchSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const branchList = branchSnapshot.docs.map(doc => {
+        const data = doc.data();
+        console.log('Fetched branch data:', data); // Log the fetched data
+        return { id: doc.id, ...data };
+      });
       setBranches(branchList);
     };
 
@@ -52,8 +57,9 @@ const AdminDashboard = () => {
     navigate(`/edit-branch/${id}`);
   };
 
-  const calculateRemainingDays = (endDate) => {
-    const end = new Date(endDate);
+  const calculateRemainingDays = (deactiveDate) => {
+    if (!deactiveDate) return 'N/A';
+    const end = new Date(deactiveDate);
     const today = new Date();
     const diffTime = end - today;
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -62,11 +68,11 @@ const AdminDashboard = () => {
   const applyFilter = (branches) => {
     switch (activeFilter) {
       case 'ongoing':
-        return branches.filter(branch => calculateRemainingDays(branch.endDate) > 0);
+        return branches.filter(branch => calculateRemainingDays(branch.deactiveDate) > 0);
       case 'expiring':
-        return branches.filter(branch => calculateRemainingDays(branch.endDate) > 0 && calculateRemainingDays(branch.endDate) <= 5);
+        return branches.filter(branch => calculateRemainingDays(branch.deactiveDate) > 0 && calculateRemainingDays(branch.deactiveDate) <= 5);
       case 'expired':
-        return branches.filter(branch => calculateRemainingDays(branch.endDate) <= 0);
+        return branches.filter(branch => calculateRemainingDays(branch.deactiveDate) <= 0);
       case 'all':
       default:
         return branches;
@@ -82,11 +88,11 @@ const AdminDashboard = () => {
       branch.location.toLowerCase().includes(lowerCaseQuery) ||
       branch.ownerName.toLowerCase().includes(lowerCaseQuery) ||
       branch.subscriptionType.toLowerCase().includes(lowerCaseQuery) ||
-      branch.startDate.toLowerCase().includes(lowerCaseQuery) ||
-      branch.endDate.toLowerCase().includes(lowerCaseQuery) ||
+      (branch.activeDate ? branch.activeDate.toLowerCase().includes(lowerCaseQuery) : false) ||
+      (branch.deactiveDate ? branch.deactiveDate.toLowerCase().includes(lowerCaseQuery) : false) ||
       branch.amount.toString().includes(lowerCaseQuery) ||
       branch.numberOfUsers.toString().includes(lowerCaseQuery) ||
-      (calculateRemainingDays(branch.endDate) > 0 ? 'active' : 'deactive').includes(lowerCaseQuery)
+      (calculateRemainingDays(branch.deactiveDate) > 0 ? 'active' : 'deactive').includes(lowerCaseQuery)
     );
   });
 
@@ -164,12 +170,12 @@ const AdminDashboard = () => {
                 <td>{branch.subscriptionType}</td>
                 <td>{branch.numberOfUsers}</td>
                 <td>{branch.password}</td>
-                <td>{branch.startDate}</td>
-                <td>{branch.endDate}</td>
+                <td>{branch.activeDate || 'N/A'}</td>
+                <td>{branch.deactiveDate || 'N/A'}</td>
                 <td>{branch.amount}</td>
-                <td>{calculateRemainingDays(branch.endDate)}</td>
-                <td className={calculateRemainingDays(branch.endDate) > 0 ? 'status-active' : 'status-deactive'}>
-                  {calculateRemainingDays(branch.endDate) > 0 ? 'Active' : 'Deactive'}
+                <td>{calculateRemainingDays(branch.deactiveDate)}</td>
+                <td className={calculateRemainingDays(branch.deactiveDate) > 0 ? 'status-active' : 'status-deactive'}>
+                  {calculateRemainingDays(branch.deactiveDate) > 0 ? 'Active' : 'Deactive'}
                 </td>
                 <td className="actions">
                   <button onClick={() => handleEdit(branch.id)}>
