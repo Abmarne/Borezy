@@ -120,7 +120,7 @@ const CreateSuperAdmin = () => {
 
       {!showForm && (
         <div className="btn">
-          <button onClick={() => setShowForm(true)}>Create New Super Admin</button>
+          <button className='btn1' onClick={() => setShowForm(true)}>Create New Super Admin</button>
         </div>
       )}
 
@@ -162,7 +162,7 @@ const CreateSuperAdmin = () => {
             </div>
             <br />
             <div className='btn-group'>
-              <button className='Confirm' type="submit">Confirm</button>
+              <button className='btn1' type="submit">Confirm</button>
               <button className='Cancel' type="button" onClick={handleCancel}>Cancel</button>
             </div>
           </form>

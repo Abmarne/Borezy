@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Checkbox, TextField, IconButton, InputAdornment } from '@mui/material';
 import { signInWithEmailAndPassword, getAuth } from 'firebase/auth';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs,updateDoc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from './UserContext'; // Import the context
@@ -9,6 +9,7 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import './login.css';
 import Logo from '../../assets/logo.png';
 import BgAbstract from '../../assets/sd.jpg';
+import { fetchRealTimeDate } from '../../utils/fetchRealTimeDate';
 
 const Login = () => {
   const { setUserData } = useUser(); // Access setUserData from the context
@@ -19,6 +20,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
 
   useEffect(() => {
     const checkAuthToken = async () => {
@@ -89,7 +91,7 @@ const Login = () => {
       if (!superAdminSnapshot.empty) {
         const superAdminData = superAdminSnapshot.docs[0].data();
         setUserData({ name: superAdminData.name, role: 'Super Admin', email });
-        navigate('/admin-dashboard');
+        navigate('/leads');
         return;
       }
 
@@ -99,7 +101,7 @@ const Login = () => {
       if (!adminSnapshot.empty) {
         const adminData = adminSnapshot.docs[0].data();
         setUserData({ name: adminData.name, role: 'Admin', email });
-        navigate('/admin-dashboard');
+        navigate('/leads');
         return;
       }
 
@@ -109,7 +111,29 @@ const Login = () => {
       if (!branchSnapshot.empty) {
         const branchData = branchSnapshot.docs[0].data();
         setUserData({ name: branchData.name, role: 'Branch Manager', email });
+        // if (branchData.firstLogin) {
+        //   navigate('/change-password');
+        //   await updateDoc(branchData, { firstLogin: false });
+        //   return;
+        // }
         navigate('/welcome');
+        return;
+      }
+
+      const branchData = branchSnapshot.docs[0].data();
+      const today = await fetchRealTimeDate();
+
+      const activeDate = new Date(branchData.activeDate);
+      const deactiveDate = new Date(branchData.deactiveDate);
+
+      if (today < activeDate) {
+       
+        setLoading(false);
+        return;
+      }
+
+      if (today > deactiveDate) {
+        setLoading(false);
         return;
       }
 

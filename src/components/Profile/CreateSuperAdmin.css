@@ -27,7 +27,7 @@ input{
     height: 40px;
 }
 
-button{
+.btn1{
     border: none;
     background: linear-gradient(to bottom, #175CFF, #0E3799);
     color: #FFFFFF;

@@ -1,124 +1,138 @@
-/* Leads.css */
-
-/* General styling for the container */
-.lead-container {
-  display: flex;
-  flex-direction: column;
-}
-
-/* Navbar styling */
-.navbar {
-  display: flex;
-  align-items: center;
-  background: #fff; /* Background color white */
-  color: #333; /* Text color for contrast */
-  padding: 10px;
-  position: relative;
-  z-index: 1;
-  border-bottom: 1px solid #ddd; /* Add a bottom border for separation */
-}
-
-.navbar-logo {
-  margin-left: 20px; /* Shift the logo to the right */
-}
-
-.navbar-logo img {
-  height: 40px;
-}
-
-.navbar-toggle {
-  background: none;
-  border: none;
-  color: #333;
-  font-size: 24px;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-left: 10px; /* Adjust spacing as needed */
-}
-
-.navbar-toggle-icon {
-  width: 30px;
-  height: 3px;
-  background-color: #333;
-  margin: 3px 0;
-}
-
-/* Add Lead button styling */
-.add-lead-container {
-  display: flex;
-  justify-content: flex-end; /* Align button to the right */
-  padding: 20px; /* Add some padding below the navbar */
-}
-
-.add-lead-button {
-  background: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background 0.3s ease; /* Smooth transition on hover */
-}
-
-.add-lead-button:hover {
-  background: #0056b3; /* Darker shade on hover */
-}
-
-/* Sidebar styling */
-.sidebar {
-  background: #f4f4f4;
-  width: 250px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100%;
-  padding: 20px;
-  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-  z-index: 0;
-  overflow-y: auto; /* Add scroll if content overflows */
-}
-
-.sidebar-header {
-  font-size: 18px;
-  margin-bottom: 20px;
-  font-weight: bold; /* Make header text bold */
-}
-
-/* Sidebar sections */
-.sidebar-section {
-  margin-bottom: 30px; /* Add space between sections */
-}
-
-.sidebar-title {
-  font-weight: bold;
-  margin-bottom: 20px; /* Move title down */
-  margin-top: 30px; /* Add space above the title */
-}
-
-.sidebar ul {
-  list-style: none;
-  padding: 0;
-}
-
-.sidebar li {
-  margin: 5px 0;
-}
-
-.sidebar button {
-  background: none;
-  border: none;
-  color: #333;
-  font-size: 16px;
-  cursor: pointer;
-  text-align: left;
+/* Additional styling for table and other elements */
+.table-container {
+  margin-top: 80px;
   width: 100%;
-  padding: 5px 0; /* Add padding for better click area */
-  transition: background 0.2s ease; /* Smooth transition on hover */
+  max-height: 500px; /* Adjust as needed for vertical overflow */
+  overflow-y: auto; /* Enable vertical scrolling */
+  position: relative; /* For positioning the scrollbar wrapper */
 }
 
-.sidebar button:hover {
-  background: #e9ecef; /* Light grey background on hover */
+/* Create a wrapper for horizontal scroll */
+
+/* Table styling */
+.table {
+  text-align: left;
+  width: 100%; /* Ensure table takes full width of its container */
+  border-collapse: collapse;
+  box-sizing: border-box; /* Include padding and border in width calculations */
+  border-bottom: 1px solid #666666;
+}
+
+/* Table headers and cells styling */
+.table th, .table td {
+  padding: 15px;
+  border-bottom: 1px solid #efefef;
+  font-family: 'Public Sans', sans-serif;
+  font-size: 13px;
+}
+
+.table th {
+  background: #EFEFEF;
+  font-weight: 600;
+  color: #000000;
+}
+
+.table td {
+  background: #FFFFFF;
+  font-weight: 400;
+  color: #000000;
+}
+
+/* New styles for status colors */
+.table td.status-active {
+  color: #008101;
+}
+
+.table td.status-deactive {
+  color: #FF0000;
+}
+
+/* Styles for the Create Branch button */
+.create-branch-container {
+  position: absolute;
+  right: 0;
+  top: 120px;
+}
+
+.create-branch-container button {
+  background: linear-gradient(187.36deg, #175CFF 5.38%, #0E3799 93.96%);
+  border: 1px solid #004DA8;
+  border-radius: 10px;
+  width: 133px;
+  height: 33px;
+  font-family: 'Public Sans', sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  text-align: center;
+  color: #FFFFFF;
+  cursor: pointer;
+}
+
+.create-branch-container button:hover {
+  background: linear-gradient(187.36deg, #0E3799 5.38%, #175CFF 93.96%);
+}
+
+/* Styles for filter buttons */
+.filter-buttons-container {
+  margin: 20px 0;
+}
+
+.filter-buttons-container span {
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.active-filter {
+  font-weight: bold;
+}
+
+/* Styles for search bar */
+.search-bar-container {
+  position: absolute;
+  height: 33px;
+  right: 150px; /* Position it before the Create Branch button */
+  top: 120px;
+  border-bottom: 1px solid #A39D9D;
+}
+
+.search-bar-container input {
+  padding: 10px 30px;
+  width: 150px; /* Adjust width as needed */
+  border: none;
+  outline: none;
+  font-family: 'Public Sans', sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  color: #666666;
+  border-bottom: 1px solid #A39D9D;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px; /* Adjust position as needed */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px; /* Adjust the size of the icon */
+  height: 20px;
+}
+
+/* No link style */
+.no-link-style {
+  text-decoration: none;
+  color: inherit;
+}
+
+.button {
+  background: none; /* Remove background color */
+  border: none; /* Remove default border */
+  padding: 0; /* Remove padding to fit the icon */
+  cursor: pointer; /* Change cursor to pointer for click indication */
+  display: inline-flex; /* Align icon properly */
+  align-items: center; /* Center icon vertically */
+  justify-content: center; /* Center icon horizontally */
+}
+
+button img.icon {
+  width: 24px; /* Adjust size as needed */
+  height: 24px; /* Adjust size as needed */
 }

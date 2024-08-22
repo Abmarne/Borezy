@@ -5,7 +5,7 @@ import { db } from '../../firebaseConfig';
 import { sendEmail } from '../../utils/sendEmail';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
-//import './createBranch.css';
+import './CreateBranch.css'
 
 const CreateBranch = () => {
   const [formData, setFormData] = useState({

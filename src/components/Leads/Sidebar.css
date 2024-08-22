@@ -1,0 +1,93 @@
+/* src/components/Sidebar.css */
+
+/* Sidebar container */
+.sidebar {
+  position: fixed;
+  top: 62px; /* Adjust top position */
+  left: -250px; /* Hide sidebar initially */
+  width: 250px;
+  height: calc(100% - 62px); /* Adjust height to fill viewport height minus top position */
+  color: #000000; /* Text color */
+  transition: left 0.3s ease; /* Smooth transition for sidebar movement */
+  padding: 20px;
+  z-index: 1; /* Ensure it's above other content */
+  background: #FFFFFF;
+  box-shadow: 0px 4px 9.2px rgba(0, 0, 0, 0.25);
+  border-radius: 0px 20px 20px 0px; /* Rounded corners */
+  overflow-y: auto; /* Make sidebar scrollable */
+  overflow-x: auto; /* Prevent horizontal scrolling */
+  box-sizing: border-box; /* Include padding in height calculation */
+}
+
+/* Show sidebar when open */
+.sidebar.open {
+  left: 0;
+}
+
+/* Close button styling */
+.sidebar-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #000000; /* Adjusted to be visible on white background */
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Sidebar list styling */
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar ul li {
+  margin: 10px 0;
+}
+
+/* Sidebar link styling */
+.sidebar-link {
+  display: block;
+  padding: 10px;
+  margin: 10px 0;
+  text-align: left;
+  background-color: #ffffff;
+  transition: background-color 0.3s ease; /* Smooth color transition */
+  border-radius: 10px; /* Rounded corners */
+}
+
+.sidebar-link:hover {
+  background-color: #f0f0f0; /* Slightly different color on hover */
+}
+
+.sidebar-link.active {
+  background: #dcb7eb; /* Active link background color */
+}
+
+.sidebar-link.active a {
+  color: white; /* Ensure links inside the active state are white */
+  font-weight: 500; /* Adjusted for better readability */
+}
+
+/* Remove underline from links */
+.sidebar-link a {
+  text-decoration: none;
+  color: inherit; /* Inherit color from parent */
+}
+
+/* Greeting text styling */
+.sidebar-greeting, .sidebar-greeting1 {
+  font-family: 'Public Sans', sans-serif;
+  font-style: normal;
+  font-weight: 1000; /* Adjusted weight for better readability */
+  font-size: 15px;
+  line-height: 16px;
+  color: #000000; /* Text color */
+}
+
+.sidebar-greeting{
+background-color: #f0f0f0;
+padding: 5%;
+}

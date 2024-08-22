@@ -8,6 +8,16 @@
 .dashboard-container {
   display: flex;
   flex-direction: column;
+  max-width: 1500px; /* Constrain the width for desktop */
+  height: 100%; /* Make container take the full height of the viewport */
+  margin: auto; /* Center the container on the page */
+  overflow: hidden; /* Hide overflow within the container */
+  box-sizing: border-box; /* Ensure padding doesn't cause overflow */
+}
+
+.dashboard-container2 {
+  display: flex;
+  flex-direction: column;
   max-width: 1200px; /* Constrain the width for desktop */
   height: 80vh; /* Make container take the full height of the viewport */
   margin: auto; /* Center the container on the page */
@@ -255,4 +265,7 @@ main {
     right: -25%; /* Reduce the overflow to better fit smaller screens */
     width: 150%; /* Adjust width to maintain the hover effect */
   }
+  
 }
+
+

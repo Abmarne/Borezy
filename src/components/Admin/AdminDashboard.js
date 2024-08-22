@@ -2,32 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import { useNavigate } from 'react-router-dom';
-import './AdminDashboard.css';
 import editIcon from '../../assets/Edit.png';
 import deleteIcon from '../../assets/Trash Can - Copy.png';
 import logo1 from '../../assets/screenshot-20240801-at-125204-pmremovebgpreview-1@2x.png';
 import profileIcon from '../../assets/Profile.png';
-
-const Header = () => {
-  const navigate = useNavigate();
-
-  return (
-    <header className="dashboard-header">
-      <div className="header-logo">
-        <img src={logo1} alt="Logo" />
-      </div>
-      <div className="header-profile">
-        <img src={profileIcon} alt="Profile" onClick={() => navigate('/profile')} />
-      </div>
-    </header>
-  );
-};
+import Sidebar from '../Leads/Sidebar';
+import Header from '../Leads/Header';
+import '../Profile/Profile.css'
 
 const AdminDashboard = () => {
   const [branches, setBranches] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  const handleSidebarToggle = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
 
   useEffect(() => {
     const fetchBranches = async () => {
@@ -97,9 +89,24 @@ const AdminDashboard = () => {
   });
 
   return (
-    <div>
-      <Header />
-      <h2 style={{ left: '25px', top: '126px', fontFamily: 'Public Sans', fontStyle: 'normal', fontWeight: '600', fontSize: '24px', lineHeight: '28px', color: '#000000' }}>
+    <div className={`dashboard-container ${sidebarOpen ? 'sidebar-open' : ''}`}>
+      <Sidebar isOpen={sidebarOpen} onToggle={handleSidebarToggle} />
+      <div className="dashboard-content">
+        <Header onMenuClick={handleSidebarToggle} isSidebarOpen={sidebarOpen} />
+      </div>
+      <div className="create-branch-container">
+        <button onClick={() => navigate('/create-branch')}>Add Branch</button>
+      </div>
+      <div className="search-bar-container">
+        <input
+          type="text"
+          placeholder="Search branches..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+      <div className="create-branch-container"></div>
+      <h2 style={{marginTop: '8%' , left: '25px', top: '126px', fontFamily: 'Public Sans', fontStyle: 'normal', fontWeight: '600', fontSize: '24px', lineHeight: '28px', color: '#000000' }}>
         Total Branches ({filteredBranches.length})
       </h2>
       <div className="filter-buttons-container">
@@ -127,18 +134,6 @@ const AdminDashboard = () => {
         >
           Expired
         </span>
-      </div>
-      <div className="create-branch-container">
-        <button onClick={() => navigate('/create-branch')}>Add Branch</button>
-      </div>
-      <div className="search-bar-container">
-        <input
-          type="text"
-          placeholder="Search branches..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
       <div className="table-container">
         <table className="table">
           <thead>
@@ -178,11 +173,8 @@ const AdminDashboard = () => {
                   {calculateRemainingDays(branch.deactiveDate) > 0 ? 'Active' : 'Deactive'}
                 </td>
                 <td className="actions">
-                  <button onClick={() => handleEdit(branch.id)}>
+                  <button className='.button1' onClick={() => handleEdit(branch.id)}>
                     <img src={editIcon} alt="Edit" className="icon" />
-                  </button>
-                  <button onClick={() => handleDelete(branch.id)}>
-                    <img src={deleteIcon} alt="Delete" className="icon" />
                   </button>
                 </td>
               </tr>
@@ -190,6 +182,7 @@ const AdminDashboard = () => {
           </tbody>
         </table>
       </div>
+    </div>
     </div>
   );
 };

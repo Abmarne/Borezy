@@ -35,7 +35,7 @@ const SingleComponent = () => {
   }, []);
 
   return (
-    <div className="dashboard-container">
+    <div className="dashboard-container2">
       <div className="content-wrapper">
         <h1>Overview</h1>
         <div className="overview">
