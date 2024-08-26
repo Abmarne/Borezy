@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { doc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
-import './RightSidebar.css';
+import { FaWhatsapp } from 'react-icons/fa';
+import './RightSidebar.css'; // Adjust the path as per your directory structure
 
 const RightSidebar = ({ isOpen, onClose, selectedLead }) => {
   const [status, setStatus] = useState('');
@@ -9,35 +10,70 @@ const RightSidebar = ({ isOpen, onClose, selectedLead }) => {
   const [assignedTo, setAssignedTo] = useState('');
   const [newComment, setNewComment] = useState('');
   const [comments, setComments] = useState([]);
-  const [response, setResponse] = useState(''); // New state for the radio buttons
+  const [response, setResponse] = useState('');
+  const [isOverlayOpen, setIsOverlayOpen] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState(''); // New state for selected template 
+  const [templateBody, setTemplateBody] = useState(''); // New state for template body
+
+  const templates = {
+    'Template 1': 'Hello, this is a reminder for your demo scheduled tomorrow.',
+    'Template 2': 'Thank you for your interest. Let us know if you have any further questions!',
+    'Template 3': 'Congratulations! Your demo has been successfully completed.',
+    'Custom' : '',
+  };
 
   useEffect(() => {
     if (selectedLead) {
       setStatus(selectedLead.status || '');
       setNextFollowup(selectedLead.nextFollowup || '');
       setAssignedTo(selectedLead.assignedTo || '');
-      setComments(selectedLead.comment || []);
+      setComments(selectedLead.comments || []);
     }
   }, [selectedLead]);
 
   const handleSave = async () => {
+    if (newComment.trim() === '') return;
+
     try {
       const leadRef = doc(db, 'leads', selectedLead.id);
+
+      const currentDateTime = new Date().toLocaleString();
+      const commentWithTimestamp = `${currentDateTime}: ${newComment}`;
 
       await updateDoc(leadRef, {
         status: status,
         nextFollowup: nextFollowup,
         assignedTo: assignedTo,
-        comment: arrayUnion(newComment),
-        response: response // Save the selected response
+        comments: arrayUnion(commentWithTimestamp),
+        response: response,
       });
 
       alert('Lead updated successfully!');
+      setComments([...comments, commentWithTimestamp]);
       setNewComment('');
       onClose();
     } catch (error) {
       console.error('Error updating lead: ', error);
     }
+  };
+
+  const handleTemplateSelect = (template) => {
+    setSelectedTemplate(template);
+    setTemplateBody(templates[template] || ''); // Set the body of the selected template
+  };
+
+  const handleTemplateBodyChange = (event) => {
+    setTemplateBody(event.target.value); // Update template body as it is edited
+  };
+
+  const handleSendTemplate = () => {
+    const whatsappLink = `https://api.whatsapp.com/send?phone=${selectedLead.contactNumber}&text=${encodeURIComponent(templateBody)}`;
+    window.open(whatsappLink, '_blank');
+    setIsOverlayOpen(false); // Close the overlay after sending
+  };
+
+  const toggleOverlay = () => {
+    setIsOverlayOpen(!isOverlayOpen);
   };
 
   return (
@@ -47,7 +83,6 @@ const RightSidebar = ({ isOpen, onClose, selectedLead }) => {
       </button>
       <div className="sidebar-content">
         <h2>Business Details</h2>
-        {/* Business Details */}
         <div className="sidebar-row">
           <div className="sidebar-item">
             <h3>Business Name:</h3>
@@ -58,7 +93,6 @@ const RightSidebar = ({ isOpen, onClose, selectedLead }) => {
             <p>{selectedLead?.businessType}</p>
           </div>
         </div>
-        {/* Contact Details */}
         <div className="sidebar-row">
           <div className="sidebar-item">
             <h3>Contact:</h3>
@@ -69,7 +103,6 @@ const RightSidebar = ({ isOpen, onClose, selectedLead }) => {
             <p>{selectedLead?.emailId}</p>
           </div>
         </div>
-        {/* Status and Follow-up Row */}
         <div className="sidebar-row">
           <div className="sidebar-item">
             <h3>Status:</h3>
@@ -90,8 +123,6 @@ const RightSidebar = ({ isOpen, onClose, selectedLead }) => {
             />
           </div>
         </div>
-
-        {/* Radio Buttons Under Status */}
         <div className="sidebar-row">
           <div className="radio-group">
             <label>
@@ -132,8 +163,6 @@ const RightSidebar = ({ isOpen, onClose, selectedLead }) => {
             </label>
           </div>
         </div>
-
-        {/* Assigned To */}
         <div className="sidebar-row">
           <div className="sidebar-item">
             <h3>Assigned To:</h3>
@@ -144,7 +173,6 @@ const RightSidebar = ({ isOpen, onClose, selectedLead }) => {
             />
           </div>
         </div>
-        {/* Add Comment Section */}
         <div className="sidebar-row full-width-row">
           <div className="sidebar-item full-width">
             <h3>Add a Comment:</h3>
@@ -156,7 +184,6 @@ const RightSidebar = ({ isOpen, onClose, selectedLead }) => {
             />
           </div>
         </div>
-        {/* Previous Comments Section */}
         <div className="sidebar-row full-width-row">
           <div className="sidebar-item full-width">
             <h3>Previous Comments:</h3>
@@ -171,9 +198,49 @@ const RightSidebar = ({ isOpen, onClose, selectedLead }) => {
             )}
           </div>
         </div>
-        {/* Save Button */}
         <div className="sidebar-row full-width-row">
-          <button className="save-button" onClick={handleSave}>Save</button>
+          <div className="save-button-container">
+            <button className="save-button" onClick={handleSave}>Save</button>
+            <div className="whatsapp-container">
+              <FaWhatsapp 
+                size={30} 
+                color="#25D366" 
+                className="whatsapp-icon" 
+                onClick={toggleOverlay} 
+              />
+              {isOverlayOpen && (
+                <>
+                  <div className="overlay-background" onClick={toggleOverlay}></div>
+                  <div className="overlay-box">
+                    <h3>Select a Template</h3>
+                    <select 
+                      value={selectedTemplate} 
+                      onChange={(e) => handleTemplateSelect(e.target.value)}
+                    >
+                      <option value="">Select Template</option>
+                      {Object.keys(templates).map((templateName, index) => (
+                        <option key={index} value={templateName}>
+                          {templateName}
+                        </option>
+                      ))}
+                    </select>
+                    {selectedTemplate && (
+                      <div className="template-editor">
+                        <textarea
+                          value={templateBody}
+                          onChange={handleTemplateBodyChange}
+                          className="template-textarea"
+                        />
+                        <button onClick={handleSendTemplate} className="send-button">
+                          Send via WhatsApp
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

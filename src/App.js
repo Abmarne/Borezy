@@ -20,6 +20,8 @@ import DemoScheduled from './components/Leads/Leads';
 import DemoDone from './components/Leads/Leads';
 import LeadWon from './components/Leads/Leads';
 import LeadLost from './components/Leads/Leads';
+import Expiring from './components/Admin/AdminDashboard.js'
+import Forget from './components/Auth/Forget-password.js'
 
 const App = () => (
   <UserProvider>
@@ -43,6 +45,8 @@ const App = () => (
       <Route path="/leads/demo-done" element={<DemoDone />} />
       <Route path="/leads/lead-won" element={<LeadWon />} />
       <Route path="/leads/lead-lost" element={<LeadLost/>} />
+      <Route path="/admin-dashboard/expiring" element={<Expiring/>}/>
+      <Route path="/Forget-password" element={<Forget/>} />
 
       <Route path="/" element={<Layout />}>
       <Route path="superadmin" element={<CreateSuperAdmin />} /> {/* Route for the LeadForm */}

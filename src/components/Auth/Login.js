@@ -3,7 +3,7 @@ import { Button, Checkbox, TextField, IconButton, InputAdornment } from '@mui/ma
 import { signInWithEmailAndPassword, getAuth } from 'firebase/auth';
 import { collection, query, where, getDocs,updateDoc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate , Link } from 'react-router-dom';
 import { useUser } from './UserContext'; // Import the context
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import './login.css';
@@ -215,7 +215,7 @@ const Login = () => {
           </div>
 
           <div className="forgot-password">
-            Forgot your password
+          <Link to="/forget-password">Forgot your password?</Link>
           </div>
 
           <Button fullWidth variant="contained" type="submit" disabled={loading}>

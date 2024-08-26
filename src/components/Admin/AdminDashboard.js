@@ -4,11 +4,9 @@ import { db } from '../../firebaseConfig';
 import { useNavigate } from 'react-router-dom';
 import editIcon from '../../assets/Edit.png';
 import deleteIcon from '../../assets/Trash Can - Copy.png';
-import logo1 from '../../assets/screenshot-20240801-at-125204-pmremovebgpreview-1@2x.png';
-import profileIcon from '../../assets/Profile.png';
 import Sidebar from '../Leads/Sidebar';
 import Header from '../Leads/Header';
-import '../Profile/Profile.css'
+import '../Profile/Profile.css';
 
 const AdminDashboard = () => {
   const [branches, setBranches] = useState([]);
@@ -21,13 +19,16 @@ const AdminDashboard = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
+  const handleFilterChange = (filter) => {
+    setActiveFilter(filter);
+  };
+
   useEffect(() => {
     const fetchBranches = async () => {
       const branchesCollection = collection(db, 'branches');
       const branchSnapshot = await getDocs(branchesCollection);
       const branchList = branchSnapshot.docs.map(doc => {
         const data = doc.data();
-        console.log('Fetched branch data:', data); // Log the fetched data
         return { id: doc.id, ...data };
       });
       setBranches(branchList);
@@ -90,7 +91,11 @@ const AdminDashboard = () => {
 
   return (
     <div className={`dashboard-container ${sidebarOpen ? 'sidebar-open' : ''}`}>
-      <Sidebar isOpen={sidebarOpen} onToggle={handleSidebarToggle} />
+      <Sidebar 
+        isOpen={sidebarOpen} 
+        onToggle={handleSidebarToggle} 
+        onFilterChange={handleFilterChange} 
+      />
       <div className="dashboard-content">
         <Header onMenuClick={handleSidebarToggle} isSidebarOpen={sidebarOpen} />
       </div>
@@ -105,35 +110,9 @@ const AdminDashboard = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
-      <div className="create-branch-container"></div>
-      <h2 style={{marginTop: '8%' , left: '25px', top: '126px', fontFamily: 'Public Sans', fontStyle: 'normal', fontWeight: '600', fontSize: '24px', lineHeight: '28px', color: '#000000' }}>
+      <h2 style={{marginTop: '8%', left: '25px', top: '126px', fontFamily: 'Public Sans', fontStyle: 'normal', fontWeight: '600', fontSize: '24px', lineHeight: '28px', color: '#000000' }}>
         Total Branches ({filteredBranches.length})
       </h2>
-      <div className="filter-buttons-container">
-        <span 
-          className={activeFilter === 'all' ? 'active-filter' : ''} 
-          onClick={() => setActiveFilter('all')}
-        >
-          Show All
-        </span>
-        <span 
-          className={activeFilter === 'ongoing' ? 'active-filter' : ''} 
-          onClick={() => setActiveFilter('ongoing')}
-        >
-          Ongoing Subscriptions
-        </span>
-        <span 
-          className={activeFilter === 'expiring' ? 'active-filter' : ''} 
-          onClick={() => setActiveFilter('expiring')}
-        >
-          Expiring Soon
-        </span>
-        <span 
-          className={activeFilter === 'expired' ? 'active-filter' : ''} 
-          onClick={() => setActiveFilter('expired')}
-        >
-          Expired
-        </span>
       <div className="table-container">
         <table className="table">
           <thead>
@@ -182,7 +161,6 @@ const AdminDashboard = () => {
           </tbody>
         </table>
       </div>
-    </div>
     </div>
   );
 };
