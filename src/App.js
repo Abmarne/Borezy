@@ -7,6 +7,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 // Lazy load components for better performance
 const Login = lazy(() => import('./components/Auth/Login'));
 const ChangePassword = lazy(() => import('./components/Auth/ChangePassword'));
+const Logout = lazy(() => import('./components/Auth/Logout'));
 const AdminDashboard = lazy(() => import('./components/Admin/AdminDashboard'));
 const UserDashboard = lazy(() => import('./components/UserDashboard/UserDashboard'));
 const CreateBranch = lazy(() => import('./components/Branch/CreateBranch'));
@@ -29,6 +30,8 @@ const EditUser = lazy(() => import('./components/UserDashboard/EditUser'));
 const ClientLeadsDashboard = lazy(() => import('./components/UserDashboard/Clienleads/CleadsDashboard'));
 const ClientLeads = lazy(() => import('./components/UserDashboard/Clienleads/Cleads'));
 const Overview = lazy(() => import('./components/Profile/overview'));
+const Unauthorized = lazy(() => import('./components/Unauthorized'));
+const Dashboard = lazy(() => import('./components/Dashboard/Dashboard'));
 
 const LoadingFallback = () => (
   <div style={{ 
@@ -50,7 +53,14 @@ const App = () => (
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
             <Route path="/" element={<Login />} />
+            <Route path="/logout" element={<Logout />} />
+            <Route path="/unauthorized" element={<Unauthorized />} />
             <Route path="/change-password" element={<ChangePassword />} />
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
             
             {/* Protected Admin Routes */}
             <Route path="/branches" element={

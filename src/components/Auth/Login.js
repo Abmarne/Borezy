@@ -154,6 +154,7 @@ const Login = () => {
 
       if (!subuserSnapshot.empty) {
         const subuserData = subuserSnapshot.docs[0].data();
+        const today = await fetchRealTimeDate();
 
         if (!subuserData.isActive) {
           toast.error('Subuser account is inactive. Contact your branch owner.');
