@@ -9,7 +9,6 @@ export const useUser = () => useContext(UserContext);
 // Provider component
 export const UserProvider = ({ children }) => {
   const [userData, setUserData] = useState(() => {
-    // Get user data from localStorage when the component mounts
     const savedUserData = localStorage.getItem('userData');
     return savedUserData ? JSON.parse(savedUserData) : null;
   });
@@ -23,8 +22,20 @@ export const UserProvider = ({ children }) => {
     }
   }, [userData]);
 
+  // Logout function
+  const logout = () => {
+    localStorage.removeItem('authToken');
+    sessionStorage.removeItem('authToken');
+    localStorage.removeItem('userData');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userPassword');
+    sessionStorage.removeItem('userEmail');
+    sessionStorage.removeItem('userPassword');
+    setUserData(null);
+  };
+
   return (
-    <UserContext.Provider value={{ userData, setUserData }}>
+    <UserContext.Provider value={{ userData, setUserData, logout }}>
       {children}
     </UserContext.Provider>
   );

@@ -1,27 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Checkbox, TextField, IconButton, InputAdornment } from '@mui/material';
+import { Button, Checkbox, TextField, IconButton, InputAdornment, CircularProgress } from '@mui/material';
 import { signInWithEmailAndPassword, getAuth } from 'firebase/auth';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from './UserContext'; // Import the context
+import { useUser } from './UserContext';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './login.css';
 import Logo from '../../assets/logo.png';
 import BgAbstract from '../../assets/sd.jpg';
 import { fetchRealTimeDate } from '../../utils/fetchRealTimeDate';
 
 const Login = () => {
-  const { setUserData } = useUser(); // Access setUserData from the context
-  const [email, setEmail] = useState(localStorage.getItem('userEmail') ? JSON.parse(localStorage.getItem('userEmail')) : '');
-  const [password, setPassword] = useState(localStorage.getItem('userPassword') ? JSON.parse(localStorage.getItem('userPassword')) : '');
+  const { setUserData } = useUser();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
+    const savedEmail = localStorage.getItem('userEmail');
+    const savedPassword = localStorage.getItem('userPassword');
+    
+    if (savedEmail && savedPassword) {
+      setEmail(JSON.parse(savedEmail));
+      setPassword(JSON.parse(savedPassword));
+      setRememberMe(true);
+    }
+
     const checkAuthToken = async () => {
       const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
       if (token) {
@@ -30,7 +40,7 @@ const Login = () => {
           const user = await auth.verifyIdToken(token);
           if (user) {
             setUserData({ name: user.name, role: user.role, email: user.email });
-            navigate(user.role === 'Super Admin' ? '/admin-dashboard' : '/user-dashboard');
+            navigate(user.role === 'Super Admin' ? '/branches' : '/welcome');
           }
         } catch (error) {
           console.error('Token validation error:', error);
@@ -42,35 +52,33 @@ const Login = () => {
     checkAuthToken();
   }, [setUserData, navigate]);
 
-  // Auto-fill email and password from storage
-  useEffect(() => {
-    const savedEmail = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
-    const savedPassword = localStorage.getItem('userPassword') || sessionStorage.getItem('userPassword');
-    
-    if (savedEmail && savedPassword) {
-      setEmail(JSON.parse(savedEmail));
-      setPassword(JSON.parse(savedPassword));
-    }
-  }, []);
-
-  // Session timeout logic (e.g., 30 minutes)
-  useEffect(() => {
-    const sessionTimeout = setTimeout(() => {
-      localStorage.removeItem('authToken');
-      sessionStorage.removeItem('authToken');
-      navigate('/login'); // Redirect to login on session timeout
-    }, 30 * 60 * 1000); // 30 minutes timeout
-
-    return () => clearTimeout(sessionTimeout); // Cleanup on component unmount
-  }, [navigate]);
-
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
   };
 
+  const validateForm = () => {
+    if (!email || !password) {
+      toast.error('Please fill in all fields');
+      return false;
+    }
+    if (!email.includes('@')) {
+      toast.error('Please enter a valid email address');
+      return false;
+    }
+    if (password.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return false;
+    }
+    return true;
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
+    
+    if (!validateForm()) {
+      return;
+    }
+
     setLoading(true);
 
     const auth = getAuth();
@@ -83,25 +91,24 @@ const Login = () => {
       if (rememberMe) {
         localStorage.setItem('authToken', token);
         localStorage.setItem('userEmail', JSON.stringify(email));
-        localStorage.setItem('userPassword', JSON.stringify(password)); // Save password
+        localStorage.setItem('userPassword', JSON.stringify(password));
       } else {
         sessionStorage.setItem('authToken', token);
         sessionStorage.setItem('userEmail', JSON.stringify(email));
-        sessionStorage.setItem('userPassword', JSON.stringify(password)); // Save password
+        sessionStorage.setItem('userPassword', JSON.stringify(password));
       }
 
-      // Check if the user is a Super Admin
       const superAdminQuery = query(collection(db, 'superadmins'), where('email', '==', email));
       const superAdminSnapshot = await getDocs(superAdminQuery);
 
       if (!superAdminSnapshot.empty) {
         const superAdminData = superAdminSnapshot.docs[0].data();
         setUserData({ name: superAdminData.name, role: 'Super Admin', email });
+        toast.success('Welcome back, Super Admin!');
         navigate('/leads');
         return;
       }
 
-      // Check if the user is a Branch Manager
       const branchQuery = query(collection(db, 'branches'), where('emailId', '==', email));
       const branchSnapshot = await getDocs(branchQuery);
 
@@ -113,13 +120,13 @@ const Login = () => {
         const branchDeactiveDate = new Date(branchData.deactiveDate);
 
         if (today < branchActiveDate) {
-          setError('Branch plan not active.');
+          toast.error('Branch plan not active.');
           setLoading(false);
           return;
         }
 
         if (today > branchDeactiveDate) {
-          setError('Branch plan is expired.');
+          toast.error('Branch plan has expired.');
           setLoading(false);
           return;
         }
@@ -137,21 +144,19 @@ const Login = () => {
           branchName: branchData.branchName,
           numberOfUsers: branchData.numberOfUsers,
         });
+        toast.success('Login successful!');
         navigate('/welcome');
         return;
       }
 
-      // Check if the user is a Subuser
       const subuserQuery = query(collection(db, 'subusers'), where('email', '==', email));
       const subuserSnapshot = await getDocs(subuserQuery);
 
       if (!subuserSnapshot.empty) {
         const subuserData = subuserSnapshot.docs[0].data();
-        const today = await fetchRealTimeDate();
 
-        // Check if the subuser is active
         if (!subuserData.isActive) {
-          setError('Subuser account is inactive. Contact your branch owner.');
+          toast.error('Subuser account is inactive. Contact your branch owner.');
           setLoading(false);
           return;
         }
@@ -160,18 +165,17 @@ const Login = () => {
         const subuserDeactiveDate = new Date(subuserData.deactiveDate);
 
         if (today < subuserActiveDate) {
-          setError('Subuser plan not active. Contact your branch owner.');
+          toast.error('Subuser plan not active. Contact your branch owner.');
           setLoading(false);
           return;
         }
 
         if (today > subuserDeactiveDate) {
-          setError('Subuser plan is expired. Contact your branch owner.');
+          toast.error('Subuser plan has expired. Contact your branch owner.');
           setLoading(false);
           return;
         }
 
-        // Check the associated branch status
         const branchRef = collection(db, 'branches');
         const branchQuery = query(branchRef, where('branchCode', '==', subuserData.branchCode));
         const branchSnapshot = await getDocs(branchQuery);
@@ -182,19 +186,14 @@ const Login = () => {
           const branchActiveDate = new Date(branchData.activeDate);
           const branchDeactiveDate = new Date(branchData.deactiveDate);
 
-          if (!subuserData.isActive) {
-            setError('Subuser account is inactive. Contact your branch owner.');
-            setLoading(false);
-            return;
-          }
           if (today < branchActiveDate) {
-            setError('Branch plan not active. Contact your branch owner.');
+            toast.error('Branch plan not active. Contact your branch owner.');
             setLoading(false);
             return;
           }
 
           if (today > branchDeactiveDate) {
-            setError('Branch plan is expired. Contact your branch owner.');
+            toast.error('Branch plan has expired. Contact your branch owner.');
             setLoading(false);
             return;
           }
@@ -205,19 +204,30 @@ const Login = () => {
             email,
             branchCode: subuserData.branchCode,
           });
+          toast.success('Login successful!');
           navigate('/welcome');
           return;
         } else {
-          setError('Associated branch not found. Contact your branch owner.');
+          toast.error('Associated branch not found. Contact your branch owner.');
           setLoading(false);
           return;
         }
       }
 
-      setError('No user found with the provided credentials.');
+      toast.error('No user found with the provided credentials.');
     } catch (error) {
       console.error('Login error:', error);
-      setError('Invalid credentials. Please try again.');
+      let errorMessage = 'Invalid credentials. Please try again.';
+      
+      if (error.code === 'auth/user-not-found') {
+        errorMessage = 'No user found with this email address.';
+      } else if (error.code === 'auth/wrong-password') {
+        errorMessage = 'Incorrect password.';
+      } else if (error.code === 'auth/too-many-requests') {
+        errorMessage = 'Too many failed attempts. Please try again later.';
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -225,6 +235,17 @@ const Login = () => {
 
   return (
     <div className="login-container">
+      <ToastContainer 
+        position="top-right" 
+        autoClose={3000} 
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <img src={BgAbstract} alt="Background" className="background-image" />
 
       <div className="logo-container">
@@ -249,6 +270,8 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
+              error={!email.includes('@') && email.length > 0}
+              helperText={!email.includes('@') && email.length > 0 ? 'Invalid email format' : ''}
             />
           </div>
 
@@ -289,11 +312,19 @@ const Login = () => {
             fullWidth
             type="submit"
             disabled={loading}
+            sx={{
+              position: 'relative',
+              minHeight: '50px'
+            }}
           >
-            {loading ? 'Signing In...' : 'Sign In'}
+            {loading ? <CircularProgress size={24} color="inherit" /> : 'Sign In'}
           </Button>
 
-          {error && <div className="error-message">{error}</div>}
+          <div className="forgot-password">
+            <a href="#" onClick={(e) => { e.preventDefault(); toast.info('Contact administrator for password reset'); }}>
+              Forgot Password?
+            </a>
+          </div>
         </form>
       </div>
     </div>

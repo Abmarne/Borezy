@@ -1,25 +1,70 @@
 // src/utils/sendEmail.js
 import emailjs from 'emailjs-com';
 
-// Function to send email using EmailJS
-export const sendEmail = async (ownerEmail, password, ownerName, startDate, endDate, amount) => {
-  // Define the template parameters with the recipient's email and message details
-  const templateParams = {
-    to_email: ownerEmail, // Recipient's email address
-    username: ownerEmail, // Email as the username
-    password: password, // User password
-    ownerName: ownerName, // Name of the owner
-    startDate: startDate, // Subscription start date
-    endDate: endDate, // Subscription end date
-    amount: amount // Subscription amount
-  };
-
+// Generic email sending function
+export const sendEmail = async ({ serviceId, templateId, params, publicKey }) => {
+  const defaultServiceId = process.env.REACT_APP_EMAILJS_SERVICE_ID || 'service_9lslyi2';
+  const defaultPublicKey = process.env.REACT_APP_EMAILJS_PUBLIC_KEY || '14_ths1xYdpFcvGAU';
+  
   try {
-    // Send the email using EmailJS
-    await emailjs.send('service_9lslyi2', 'template_2t7erac', templateParams, '14_ths1xYdpFcvGAU');
-    console.log('Email sent successfully');
+    await emailjs.send(
+      serviceId || defaultServiceId,
+      templateId || 'template_2t7erac',
+      params,
+      publicKey || defaultPublicKey
+    );
+    
+    return {
+      success: true,
+      message: 'Email sent successfully'
+    };
   } catch (error) {
     console.error('Error sending email:', error);
-    throw new Error('Failed to send email');
+    return {
+      success: false,
+      message: error.text || 'Failed to send email',
+      error
+    };
   }
+};
+
+// Send branch creation notification
+export const sendBranchNotification = async (ownerEmail, password, ownerName, startDate, endDate, amount) => {
+  const templateParams = {
+    to_email: ownerEmail,
+    username: ownerEmail,
+    password: password,
+    ownerName: ownerName,
+    startDate: startDate,
+    endDate: endDate,
+    amount: amount
+  };
+
+  return sendEmail({
+    templateId: 'template_2t7erac',
+    params: templateParams
+  });
+};
+
+// Send welcome email
+export const sendWelcomeEmail = async (userEmail, userName) => {
+  return sendEmail({
+    templateId: 'welcome_template',
+    params: {
+      to_email: userEmail,
+      to_name: userName
+    }
+  });
+};
+
+// Send notification email
+export const sendNotificationEmail = async (userEmail, subject, message) => {
+  return sendEmail({
+    templateId: 'notification_template',
+    params: {
+      to_email: userEmail,
+      subject,
+      message
+    }
+  });
 };

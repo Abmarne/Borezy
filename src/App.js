@@ -1,84 +1,216 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Login from './components/Auth/Login';
-import ChangePassword from './components/Auth/ChangePassword';
-import AdminDashboard from './components/Admin/AdminDashboard';
-import Welcome from './components/UserDashboard/UserDashboard';
-import CreateBranch from './components/Branch/CreateBranch';
-import EditBranch from './components/Branch/EditBranch';
-import ActiveLog from './components/Log/ActiveLog';
-import Leads from './components/Leads/Leads';
-import BookProduct from './components/UserDashboard/Availability/Booking';
-import Customize from './components/Customize/Customize';
-import CreateSuperAdmin from './components/Profile/CreateSuperAdmin';
-import Profile from './components/Profile/Profile';
-import Layout from './components/Profile/Layout';
-import Lead from './components/./Leads/Addlead';
-import EditLead from './components/Leads/EditLead';
+import React, { Suspense, lazy } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { UserProvider } from './components/Auth/UserContext';
-import DetailsShared from './components/Leads/Leads';
-import DemoScheduled from './components/Leads/Leads';
-import Active from './components/Admin/AdminDashboard';
-import DemoDone from './components/Leads/Leads';
-import LeadWon from './components/Leads/Leads';
-import LeadLost from './components/Leads/Leads';
-import User from './components/UserDashboard/User';
-import FreshLeads from './components/Leads/Leads';
-import AddUser from './components/UserDashboard/Adduser';
-import AddProduct from './components/Product/AddProduct';
-import ProductDashboard from './components/Product/Product';
-import CheckAvailability from './components/UserDashboard/Availability/Availability';
-import Booking from './components/UserDashboard/Availability/Booking';
-import EditUser from './components/UserDashboard/EditUser';
-import ClientLeadsDashboard from './components/UserDashboard/Clienleads/CleadsDashboard';
-import ClientLeads from './components/UserDashboard/Clienleads/Cleads';
-import SingleComponent from './components/Profile/Profile';
-import Overview from './components/Profile/overview';
-const App = () => (
-  <UserProvider>
-  <Router>
-    <Routes>
-      {/* Uncomment and use if you have a Landing component */}
-      {/* <Route path="/" element={<Landing />} /> */}
-      <Route path="/" element={<Login />} />
-      <Route path="/change-password" element={<ChangePassword />} />
-      <Route path="/branches" element={<AdminDashboard />} />
-      <Route path="/branches/active" element={<AdminDashboard />} />
-      <Route path="/branches/deactive" element={<AdminDashboard />} />
-      <Route path="/branches/expiring-soon" element={<AdminDashboard />} />
-      <Route path="/leads" element={<Leads />} />
-      <Route path="/welcome" element={<Welcome />} />
-      <Route path="/create-branch" element={<CreateBranch />} />
-      <Route path="/edit-branch/:id" element={<EditBranch />} />
-      
-      <Route path="/customize" element={<Customize />} />
-      <Route path="/active-log" element={<ActiveLog />} />
-      <Route path="/create-lead" element={<Lead />} />
-      <Route path="/edit-lead/:id" element={<EditLead />} />
-      <Route path="/leads/detail-shared" element={<DetailsShared />} />
-      <Route path="/leads/fresh-leads" element={<FreshLeads/>}/>
-      <Route path="/leads/demo-scheduled" element={<DemoScheduled />} />
-      <Route path="/leads/demo-done" element={<DemoDone />} />
-      <Route path="/leads/lead-won" element={<LeadWon />} />
-      <Route path="/leads/lead-lost" element={<LeadLost/>} />
-      <Route path="/usersidebar/users" element={<User />} />
-      <Route path="/adduser" element={<AddUser />} />
-      <Route path="/addproduct" element={<AddProduct />} />
-      <Route path="/productdashboard" element={<ProductDashboard />} />
-      <Route path="/usersidebar/availability" element={<Booking />} />
-      <Route path="/edituser/:id" element={<EditUser />} />
-      <Route path="/usersidebar/leads" element={<ClientLeadsDashboard/>}/>
-      <Route path="/addlead" element ={<ClientLeads/>}/>
+import ProtectedRoute from './components/ProtectedRoute';
+import ErrorBoundary from './components/ErrorBoundary';
 
-      <Route path="/" element={<Layout />}>
-      <Route path="superadmin" element={<CreateSuperAdmin />} /> {/* Route for the LeadForm */}
-      <Route path="profile" element={<SingleComponent/>} />
-      <Route path="overview" element={<Overview/>} />
-      
-    </Route>
-    </Routes>
-  </Router>
-  </UserProvider>
+// Lazy load components for better performance
+const Login = lazy(() => import('./components/Auth/Login'));
+const ChangePassword = lazy(() => import('./components/Auth/ChangePassword'));
+const AdminDashboard = lazy(() => import('./components/Admin/AdminDashboard'));
+const UserDashboard = lazy(() => import('./components/UserDashboard/UserDashboard'));
+const CreateBranch = lazy(() => import('./components/Branch/CreateBranch'));
+const EditBranch = lazy(() => import('./components/Branch/EditBranch'));
+const ActiveLog = lazy(() => import('./components/Log/ActiveLog'));
+const Leads = lazy(() => import('./components/Leads/Leads'));
+const Booking = lazy(() => import('./components/UserDashboard/Availability/Booking'));
+const Customize = lazy(() => import('./components/Customize/Customize'));
+const CreateSuperAdmin = lazy(() => import('./components/Profile/CreateSuperAdmin'));
+const Profile = lazy(() => import('./components/Profile/Profile'));
+const Layout = lazy(() => import('./components/Profile/Layout'));
+const AddLead = lazy(() => import('./components/Leads/Addlead'));
+const EditLead = lazy(() => import('./components/Leads/EditLead'));
+const User = lazy(() => import('./components/UserDashboard/User'));
+const AddUser = lazy(() => import('./components/UserDashboard/Adduser'));
+const AddProduct = lazy(() => import('./components/Product/AddProduct'));
+const ProductDashboard = lazy(() => import('./components/Product/Product'));
+const Availability = lazy(() => import('./components/UserDashboard/Availability/Availability'));
+const EditUser = lazy(() => import('./components/UserDashboard/EditUser'));
+const ClientLeadsDashboard = lazy(() => import('./components/UserDashboard/Clienleads/CleadsDashboard'));
+const ClientLeads = lazy(() => import('./components/UserDashboard/Clienleads/Cleads'));
+const Overview = lazy(() => import('./components/Profile/overview'));
+
+const LoadingFallback = () => (
+  <div style={{ 
+    display: 'flex', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    height: '100vh',
+    fontSize: '18px',
+    color: '#666'
+  }}>
+    Loading...
+  </div>
+);
+
+const App = () => (
+  <ErrorBoundary>
+    <UserProvider>
+      <Router>
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route path="/change-password" element={<ChangePassword />} />
+            
+            {/* Protected Admin Routes */}
+            <Route path="/branches" element={
+              <ProtectedRoute allowedRoles={['Super Admin']}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/branches/active" element={
+              <ProtectedRoute allowedRoles={['Super Admin']}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/branches/deactive" element={
+              <ProtectedRoute allowedRoles={['Super Admin']}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/branches/expiring-soon" element={
+              <ProtectedRoute allowedRoles={['Super Admin']}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            } />
+            
+            {/* Protected Leads Routes */}
+            <Route path="/leads" element={
+              <ProtectedRoute>
+                <Leads />
+              </ProtectedRoute>
+            } />
+            <Route path="/leads/fresh-leads" element={
+              <ProtectedRoute>
+                <Leads />
+              </ProtectedRoute>
+            } />
+            <Route path="/leads/detail-shared" element={
+              <ProtectedRoute>
+                <Leads />
+              </ProtectedRoute>
+            } />
+            <Route path="/leads/demo-scheduled" element={
+              <ProtectedRoute>
+                <Leads />
+              </ProtectedRoute>
+            } />
+            <Route path="/leads/demo-done" element={
+              <ProtectedRoute>
+                <Leads />
+              </ProtectedRoute>
+            } />
+            <Route path="/leads/lead-won" element={
+              <ProtectedRoute>
+                <Leads />
+              </ProtectedRoute>
+            } />
+            <Route path="/leads/lead-lost" element={
+              <ProtectedRoute>
+                <Leads />
+              </ProtectedRoute>
+            } />
+            
+            {/* Protected User Dashboard Routes */}
+            <Route path="/welcome" element={
+              <ProtectedRoute>
+                <UserDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/create-branch" element={
+              <ProtectedRoute allowedRoles={['Super Admin']}>
+                <CreateBranch />
+              </ProtectedRoute>
+            } />
+            <Route path="/edit-branch/:id" element={
+              <ProtectedRoute allowedRoles={['Super Admin']}>
+                <EditBranch />
+              </ProtectedRoute>
+            } />
+            <Route path="/customize" element={
+              <ProtectedRoute>
+                <Customize />
+              </ProtectedRoute>
+            } />
+            <Route path="/active-log" element={
+              <ProtectedRoute>
+                <ActiveLog />
+              </ProtectedRoute>
+            } />
+            <Route path="/create-lead" element={
+              <ProtectedRoute>
+                <AddLead />
+              </ProtectedRoute>
+            } />
+            <Route path="/addlead" element={
+              <ProtectedRoute>
+                <ClientLeads />
+              </ProtectedRoute>
+            } />
+            <Route path="/edit-lead/:id" element={
+              <ProtectedRoute>
+                <EditLead />
+              </ProtectedRoute>
+            } />
+            <Route path="/usersidebar/users" element={
+              <ProtectedRoute>
+                <User />
+              </ProtectedRoute>
+            } />
+            <Route path="/adduser" element={
+              <ProtectedRoute allowedRoles={['Super Admin', 'Branch Manager']}>
+                <AddUser />
+              </ProtectedRoute>
+            } />
+            <Route path="/addproduct" element={
+              <ProtectedRoute>
+                <AddProduct />
+              </ProtectedRoute>
+            } />
+            <Route path="/productdashboard" element={
+              <ProtectedRoute>
+                <ProductDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/usersidebar/availability" element={
+              <ProtectedRoute>
+                <Availability />
+              </ProtectedRoute>
+            } />
+            <Route path="/usersidebar/booking" element={
+              <ProtectedRoute>
+                <Booking />
+              </ProtectedRoute>
+            } />
+            <Route path="/edituser/:id" element={
+              <ProtectedRoute allowedRoles={['Super Admin', 'Branch Manager']}>
+                <EditUser />
+              </ProtectedRoute>
+            } />
+            <Route path="/usersidebar/leads" element={
+              <ProtectedRoute>
+                <ClientLeadsDashboard />
+              </ProtectedRoute>
+            } />
+            
+            {/* Profile Routes */}
+            <Route path="/" element={<Layout />}>
+              <Route path="superadmin" element={
+                <ProtectedRoute allowedRoles={['Super Admin']}>
+                  <CreateSuperAdmin />
+                </ProtectedRoute>
+              } />
+              <Route path="profile" element={<Profile />} />
+              <Route path="overview" element={<Overview />} />
+            </Route>
+            
+            {/* Catch all - redirect to home */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
+      </Router>
+    </UserProvider>
+  </ErrorBoundary>
 );
 
 export default App;

@@ -4,15 +4,14 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
-
 const firebaseConfig = {
-  apiKey: "AIzaSyDSsmK57c_LBlFMTEuT88Ilrcu6PAjGvD4",
-  authDomain: "renting-wala.firebaseapp.com",
-  projectId: "renting-wala",
-  storageBucket: "renting-wala.appspot.com",
-  messagingSenderId: "180970125349",
-  appId: "1:180970125349:web:a204e0c73d0b39a521a7cc",
-  measurementId: "G-BLSYY0G1BM"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
 };
 
 // Initialize Firebase
@@ -20,3 +19,8 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
+
+// Validate environment variables
+if (!process.env.REACT_APP_FIREBASE_API_KEY) {
+  console.warn('Firebase configuration is missing. Please check your .env file.');
+}
